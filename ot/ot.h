@@ -1,6 +1,6 @@
 #ifndef OT_H__
 #define OT_H__
-#include <emp-tool>
+#include <emp-tool.h>
 
 template<typename T>
 class OT {
