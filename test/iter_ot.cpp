@@ -1,5 +1,5 @@
 //#include "emp-ot.h"
-#include "emp-ot"
+#include "emp-ot/emp-ot.h"
 #include <emp-tool.h>
 #include <iostream>
 using namespace std;
@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
 	parse_party_and_port(argv, &party, &port);
 	NetIO * io = new NetIO(party==ALICE ? nullptr:SERVER_IP, port);
 	io->set_nodelay();
-	double t1 = timeStamp();
+	double t1 =(double) timeStamp();
 	SHOTIterated<NetIO> * ot = new SHOTIterated<NetIO>(io, party == ALICE, 1<<14);
 	cout << (timeStamp() - t1)<<endl;
 	int length = 1<<23;

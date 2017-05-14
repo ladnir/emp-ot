@@ -1,6 +1,6 @@
 #ifndef OT_ITERATED_H__
 #define OT_ITERATED_H__
-#include "emp-ot"
+#include "emp-ot/emp-ot.h"
 /** @addtogroup OT
     @{
   */

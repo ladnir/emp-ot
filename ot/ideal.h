@@ -1,6 +1,6 @@
 #ifndef OT_IDEAL_H__
 #define OT_IDEAL_H__
-#include "ot.h"
+#include "emp-ot/ot/ot.h"
 /** @addtogroup OT
     @{
   */
