@@ -13,7 +13,7 @@ FIND_PACKAGE(gmp         REQUIRED)
 
 
 include_directories(${CMAKE_SOURCE_DIR}/..)
-include_directories(${EMP-TOOL_INCLUDE_DIRS} ${cryptoTools_INCLUDE_DIRS} ${relic_INCLUDE_DIRS} ${gmp_INCLUDE_DIRS})
+include_directories(${EMP-TOOL_INCLUDE_DIRS} ${cryptoTools_INCLUDE_DIRS} ${relic_INCLUDE_DIRS} ${GMP_INCLUDE_DIRS})
 LINK_DIRECTORIES(${cryptoTools_LINK_DIRS})
 
 
@@ -28,7 +28,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++14")
 
 
 
-set (LIBS ${EMP-TOOL_LIBRARIES} ${cryptoTools_LIBRARIES} ${relic_LIBRARIES} ${gmp_LIBRARIES})
+set (LIBS "${EMP-TOOL_LIBRARIES};${cryptoTools_LIBRARIES};${relic_LIBRARIES};${GMP_LIBRARIES}")
 add_executable(shot    test/shot.cpp)
 add_executable(mot     test/mot.cpp)
 add_executable(iter_ot test/iter_ot.cpp)
