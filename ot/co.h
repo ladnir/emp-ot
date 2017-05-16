@@ -75,11 +75,19 @@ class OTCO: public OT<OTCO<IO>> { public:
 		prg.random_bn(bb, length);
 
 		for(int i = 0; i < length; ++i) {
+
+
+
 			eb_mul_fix_norm(B[i], gTbl, bb[i]);
 			io->recv_eb(&A[i], 1);
+
+
+
 			if (b[i]) {
 				eb_add_norm(B[i], A[i], B[i]);
 			}
+
+
 		}
 
 		io->send_eb(B, length);
@@ -91,6 +99,7 @@ class OTCO: public OT<OTCO<IO>> { public:
 		for(int i = 0; i < length; ++i) {
 			io->recv_data(res, 2*sizeof(block));
 			data[i] = KDF(A[i]);
+
 			if(b[i])
 				data[i] = xorBlocks(data[i], res[1]);
 			else

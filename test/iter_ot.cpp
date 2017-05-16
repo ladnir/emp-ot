@@ -114,17 +114,39 @@ double test_rot(IO * io, int party, int length, T<IO>* ot, int TIME = 10) {
 	return (double)t/TIME;
 }
 
-int main(int argc, char** argv) {
-	int port, party;
-	parse_party_and_port(argv, &party, &port);
-	NetIO * io = new NetIO(party==ALICE ? nullptr:SERVER_IP, port);
+void go(int party, int port, bool print)
+{
+	std::stringstream ss;
+	std::ostream& out = print ? std::cout : ss;
+	int pow = 10;
+	int length = 1 << pow;
+
+	NetIO * io = new NetIO(party == ALICE ? nullptr : SERVER_IP, port);
 	io->set_nodelay();
-	double t1 =(double) timeStamp();
-	SHOTIterated<NetIO> * ot = new SHOTIterated<NetIO>(io, party == ALICE, 1<<14);
-	cout << (timeStamp() - t1)<<endl;
-	int length = 1<<23;
-	cout <<length<<" Semi Honest OT Extension\t"<<test_ot<NetIO, SHOTIterated>(io, party, length, ot)<<endl;
-	cout <<length<<" Semi Honest COT Extension\t"<<test_cot<NetIO, SHOTIterated>(io, party, length, ot)<<endl;
-	cout <<length<<" Semi Honest ROT Extension\t"<<test_rot<NetIO, SHOTIterated>(io, party, length, ot)<<endl;
+
+	double t1 = (double)timeStamp();
+	SHOTIterated<NetIO> * ot = new SHOTIterated<NetIO>(io, party == ALICE,length);
+	out << (timeStamp() - t1) << endl;
+
+
+	out << "2^"<< pow << " Semi Honest OT Extension\t" << test_ot<NetIO, SHOTIterated>(io, party, length, ot) << endl;
+	out << "2^"<< pow << " Semi Honest COT Extension\t" << test_cot<NetIO, SHOTIterated>(io, party, length, ot) << endl;
+	out << "2^"<< pow << " Semi Honest ROT Extension\t" << test_rot<NetIO, SHOTIterated>(io, party, length, ot) << endl;
 	delete io;
+}
+
+int main(int argc, char** argv) {
+
+	if (argc == 3)
+	{
+		int port, party;
+		parse_party_and_port(argv, &party, &port);
+		go(party, port, true);
+	}
+	else
+	{
+		auto thrd = std::thread([]() {go(1, 1212, false); });
+		go(2, 1212, true);
+		thrd.join();
+	}
 }

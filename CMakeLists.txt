@@ -18,9 +18,10 @@ LINK_DIRECTORIES(${cryptoTools_LINK_DIRS})
 
 
 if(MSVC)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W3 /EHsc -D_CRT_SECURE_NO_WARNINGS")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W3 /EHsc -D_CRT_SECURE_NO_WARNINGS /Z7 /DEBUG")
 	set(CMAKE_CXX_FLAGS_RELEASE "/MT")
-	set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
+	set(CMAKE_CXX_FLAGS_DEBUG "/MTd /Od")
+	set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /DEBUG /OPT:REF /OPT:ICF" CACHE STRING "" FORCE)
 else()
 	set(CMAKE_C_FLAGS "-pthread -Wall -march=native -O3 -maes")
 endif()
@@ -28,13 +29,17 @@ set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++14")
 
 
 
-set (LIBS "${EMP-TOOL_LIBRARIES};${cryptoTools_LIBRARIES};${relic_LIBRARIES};${GMP_LIBRARIES}")
+
+set(LIBRARIES "${EMP-TOOL_LIBRARIES};${relic_LIBRARIES};${cryptoTools_LIBRARIES};${GMP_LIBRARIES}")
+#set(DEBUG_LIBRARIES "${EMP-TOOL_DEBUG_LIBRARIES};${relic_DEBUG_LIBRARIES};${cryptoTools_DEBUG_LIBRARIES};${GMP_DEBUG_LIBRARIES}")
+
+
 add_executable(shot    test/shot.cpp)
 add_executable(mot     test/mot.cpp)
 add_executable(iter_ot test/iter_ot.cpp)
-target_link_libraries(shot     ${LIBS}) 
-target_link_libraries(mot      ${LIBS})
-target_link_libraries(iter_ot  ${LIBS})
+target_link_libraries(shot    ${LIBRARIES}) 
+target_link_libraries(mot     ${LIBRARIES})
+target_link_libraries(iter_ot ${LIBRARIES})
 
 
 
@@ -42,7 +47,7 @@ target_link_libraries(iter_ot  ${LIBS})
 install(FILES emp-ot-config.cmake DESTINATION cmake/)
 
 file(GLOB  headers 
-"ot/*.h"
-"emp-ot"
+	"ot/*.h"
 )
 install(FILES ${headers}  DESTINATION include/${NAME})
+install(FILES emp-ot.h  DESTINATION include)
