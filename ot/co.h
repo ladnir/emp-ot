@@ -13,7 +13,9 @@ class OTCO: public OT<OTCO<IO>> { public:
 	const eb_t *gTbl;
 	PRG prg;
 	IO* io;
-	OTCO(IO* io) {
+	OTCO(IO* io, const block& seed)
+        :prg(seed)
+    {
 		this->io = io;
 		initialize_relic();
 		eb_curve_get_gen(g);

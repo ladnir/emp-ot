@@ -10,7 +10,7 @@ template<typename IO>
 class MOTExtension_KOS: public OT<MOTExtension_KOS<IO>> { public:
 	OTCO<IO> * base_ot;
 	PRG prg;
-	PRG * G0, *G1;
+	std::vector<PRG> G0, G1;
 	PRP pi;
 	const int l = 128;
 	block *k0 = nullptr, *k1 = nullptr;
@@ -23,16 +23,27 @@ class MOTExtension_KOS: public OT<MOTExtension_KOS<IO>> { public:
 	bool committing = false;
 	char dgst[Hash::DIGEST_SIZE];
 	IO * io = nullptr;
-	MOTExtension_KOS(IO * io, bool committing = false, int ssp = 40) {
+	MOTExtension_KOS(IO * io, const block& seed, bool committing = false, int ssp = 40) 
+        :prg(seed)
+    {
 		this->io = io;
-		this->base_ot = new OTCO<IO>(io);
+		this->base_ot = new OTCO<IO>(io, prg.random_block());
 		this->ssp = ssp;
 		this->s = new bool[l];
 		this->k0 = new block[l];
 		this->k1 = new block[l];
 		this->committing = committing;
-		G0 = new PRG[l];
-		G1 = new PRG[l];
+
+        G0.reserve(l);
+        G1.reserve(l);
+        for (int i = 0; i < l; ++i)
+        {
+            G0.emplace_back(prg.random_block());
+            G1.emplace_back(prg.random_block());
+        }
+
+		//G0 = new PRG[l];
+		//G1 = new PRG[l];
 	}
 
 	~MOTExtension_KOS() {
@@ -150,7 +161,7 @@ class MOTExtension_KOS: public OT<MOTExtension_KOS<IO>> { public:
 		block seed2, x, t[2], q[2], tmp1, tmp2;
 		io->recv_block(&seed2, 1);
 		block *chi = new block[extended_length];
-		PRG prg2(&seed2);
+		PRG prg2(seed2);
 		prg2.random_block(chi, extended_length);
 
 		q[0] = zero_block();
@@ -176,7 +187,7 @@ class MOTExtension_KOS: public OT<MOTExtension_KOS<IO>> { public:
 		block seed2, x = zero_block(), t[2], tmp1, tmp2;
 		prg.random_block(&seed2,1);
 		io->send_block(&seed2, 1);
-		PRG prg2(&seed2);
+		PRG prg2(seed2);
 		t[0] = t[1] = zero_block();
 		prg2.random_block(chi,extended_length);
 		for(int i = 0 ; i < length; ++i) {

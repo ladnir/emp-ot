@@ -24,11 +24,14 @@ class MOTExtension_ALSZ: public OT<MOTExtension_ALSZ<IO>> { public:
 	bool committing = false;
 	char com[Hash::DIGEST_SIZE];
 	IO* io = nullptr;
-	MOTExtension_ALSZ(IO * io, bool committing = false, int ssp = 40): mSsp(ssp){
+	MOTExtension_ALSZ(IO * io, const block& seed, bool committing = false, int ssp = 40)
+        : mSsp(ssp)
+        , mPrg(seed)
+    {
 		this->io = io;
 		this->mL = 192;
 		u = 2;
-		this->mBase_ot = new OTCO<IO>(io);
+		this->mBase_ot = new OTCO<IO>(io, mPrg.random_block());
 		this->mS = new bool[mL];
 		this->mK0 = new block[mL];
 		this->mK1 = new block[mL];
@@ -113,7 +116,7 @@ class MOTExtension_ALSZ: public OT<MOTExtension_ALSZ<IO>> { public:
 		qT = new uint8_t[length/8*mL];
 		uint8_t * q2 = new uint8_t[length/8*mL];
 		uint8_t*tmp = new uint8_t[length/8];
-		PRG G;
+		PRG G(ZeroBlock);
 		for(int i = 0; i < mL; ++i) {
 			io->recv_data(tmp, length/8);
 			G.reseed(&mK0[i]);
@@ -145,7 +148,7 @@ class MOTExtension_ALSZ: public OT<MOTExtension_ALSZ<IO>> { public:
 		tT = new uint8_t[length/8*mL];
 		tTLength = length / 8 * mL;
 		uint8_t* tmp = new uint8_t[length/8];
-		PRG G;
+		PRG G(ZeroBlock);
 		for(int i = 0; i < mL; ++i) {
 			G.reseed(&mK0[i]);
 			G.random_data(&(t[0][i*length/8]), length/8);
@@ -181,7 +184,8 @@ class MOTExtension_ALSZ: public OT<MOTExtension_ALSZ<IO>> { public:
 	void ot_extension_recv_check(int length) {
 		if (length%128 !=0) length = (length/128 + 1)*128;
 		block seed; 
-		PRG prg;int beta;
+		PRG prg(ZeroBlock);
+        int beta;
 		uint8_t * tmp = new uint8_t[length/8];
 		char dgst[20];
 		for(int i = 0; i < u; ++i) {
@@ -226,7 +230,7 @@ class MOTExtension_ALSZ: public OT<MOTExtension_ALSZ<IO>> { public:
 	bool ot_extension_send_check(int length) {
 		if (length%128 !=0) length = (length/128 + 1)*128;
 		bool cheat = false;
-		PRG prg, sprg; 
+		PRG prg(ZeroBlock), sprg(ZeroBlock);
 		block seed;int beta;
 		char dgst[2][2][20]; char dgstchk[20];
 		uint8_t * tmp = new uint8_t[length/8];

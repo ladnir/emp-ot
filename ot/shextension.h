@@ -18,9 +18,12 @@ class SHOTExtension: public OT<SHOTExtension<IO>> { public:
 	block * qT, block_s, *tT;
 	bool setup = false;
 	IO*io = nullptr;
-	SHOTExtension(IO * io) {
+	SHOTExtension(IO * io,const block& seed)
+        : prg(seed)
+        //, pi(seed ^ OneBlock)
+    {
 		this->io = io;
-		this->base_ot = new OTNP<IO>(io);
+		this->base_ot = new OTNP<IO>(io, prg.random_block());
 		this->s = new bool[l];
 		this->k0 = new block[l];
 		this->k1 = new block[l];
@@ -67,7 +70,7 @@ class SHOTExtension: public OT<SHOTExtension<IO>> { public:
 		qT = new block[length];
 		//get u, compute q
 		block *tmp = new block[length/128];
-		PRG G;
+		PRG G(prg.random_block());
 		for(int i = 0; i < l; ++i) {
 			io->recv_data(tmp, length/8);
 			G.reseed(&k0[i]);
@@ -96,7 +99,7 @@ class SHOTExtension: public OT<SHOTExtension<IO>> { public:
 		block* t = new block[length];
 		tT = new block[length];
 		block* tmp = new block[length/128];
-		PRG G;
+		PRG G(prg.random_block());
 		for(int i = 0; i < l; ++i) {
 			G.reseed(&k0[i]);
 			G.random_data(t+i*length/128, length/8);

@@ -32,3 +32,8 @@ install_manifest.txt
 *.exe
 *.out
 *.app
+
+
+*.filters
+x64/
+*.user

@@ -14,10 +14,14 @@ class OTIterated: public OT<OTIterated<IO, OTExtension>> { public:
 	int buffer_size, size = 0;
 	PRG prg;
 	IO * io = nullptr;
-	OTIterated(IO* io, bool is_sender, int buffer_size = 1<<10) {
+	OTIterated(IO* io, bool is_sender, block seed, int buffer_size = 1<<10) 
+        : prg(seed)
+    {
 		this->io = io;
-		seed_ot = new OTExtension<IO>(io);
-		ot = new OTExtension<IO>(io);
+        std::array<block, 2> seeds;
+        prg.random_block(seeds.data(), 2);
+		seed_ot = new OTExtension<IO>(io,seeds[0]);
+		ot = new OTExtension<IO>(io, seeds[1]);
 		this->buffer_size = buffer_size;
 		this->is_sender = is_sender;
 		k0 = new block[buffer_size];

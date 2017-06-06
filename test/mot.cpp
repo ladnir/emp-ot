@@ -1,12 +1,11 @@
 //#include "emp-ot.h"
 #include "emp-ot/emp-ot.h"
-#include <emp-tool.h>
+#include <emp-tool/emp-tool.h>
 #include <iostream>
-#include "mot.h"
 using namespace std;
 
 template<typename IO, template<typename>typename T>
-double test_com_ot(IO * io, int party, int length, T<IO>* ot = nullptr, int TIME = 10) {
+double test_com_ot(IO * io, EmpParty party, int length, T<IO>* ot = nullptr, int TIME = 10) {
 	block 
 		*b0 = new block[length], 
 		*b1 = new block[length], 
@@ -24,7 +23,7 @@ double test_com_ot(IO * io, int party, int length, T<IO>* ot = nullptr, int TIME
 	io->set_nodelay();
 	for (int i = 0; i < TIME; ++i) {
 		t1 = timeStamp();
-		ot = new T<IO>(io, true);
+		ot = new T<IO>(io, ZeroBlock, true);
 		if (party == ALICE) {
 			ot->send(b0, b1, length);
 			ot->open();
@@ -56,7 +55,7 @@ double test_com_ot(IO * io, int party, int length, T<IO>* ot = nullptr, int TIME
 
 
 template<typename IO, template<typename>typename T>
-double test_ot(IO * io, int party, int length, T<IO>* ot = nullptr, int TIME = 10) {
+double test_ot(IO * io, EmpParty party, int length, T<IO>* ot = nullptr, int TIME = 10) {
 	block *b0 = new block[length], *b1 = new block[length], *r = new block[length];
 	bool *b = new bool[length];
 	PRG prg(fix_key);
@@ -69,7 +68,7 @@ double test_ot(IO * io, int party, int length, T<IO>* ot = nullptr, int TIME = 1
 	io->set_nodelay();
 	for (int i = 0; i < TIME; ++i) {
 		t1 = timeStamp();
-		ot = new T<IO>(io);
+		ot = new T<IO>(io, ZeroBlock);
 		if (party == ALICE) {
 			ot->send(b0, b1, length);
 		}
@@ -126,7 +125,7 @@ double test_ot(IO * io, int party, int length, T<IO>* ot = nullptr, int TIME = 1
 	return (double)t / TIME;
 }
 template<typename IO, template<typename>typename T>
-double test_cot(IO * io, int party, int length, T<IO>* ot = nullptr, int TIME = 10) {
+double test_cot(IO * io, EmpParty party, int length, T<IO>* ot = nullptr, int TIME = 10) {
 	block *b0 = new block[length], *r = new block[length];
 	bool *b = new bool[length];
 	block delta;
@@ -169,7 +168,7 @@ double test_cot(IO * io, int party, int length, T<IO>* ot = nullptr, int TIME = 
 }
 
 template<typename IO, template<typename>typename T>
-double test_rot(NetIO * io, int party, int length, T<IO>* ot = nullptr, int TIME = 10) {
+double test_rot(NetIO * io, EmpParty party, int length, T<IO>* ot = nullptr, int TIME = 10) {
 	block *b0 = new block[length], *r = new block[length];
 	block *b1 = new block[length];
 	bool *b = new bool[length];
@@ -210,7 +209,8 @@ double test_rot(NetIO * io, int party, int length, T<IO>* ot = nullptr, int TIME
 	delete[] b;
 	return (double)t / TIME;
 }
-void go(int party, int port, bool print = true)
+
+void go(EmpParty party, int port, bool print = true)
 {
 	std::stringstream ss;
 	std::ostream& out = print ? std::cout : ss;
@@ -230,18 +230,18 @@ void go(int party, int port, bool print = true)
 
 int main(int argc, char** argv) {
 
-	if (argc == 3)
+	if (argc > 1)
 	{
 
 		int port, party;
-		parse_party_and_port(argv, &party, &port);
+		parse_party_and_port(argv, argc, &party, &port);
 
-		go(party, port);
+		go((EmpParty)party, port);
 	}
 	else
 	{
-		auto thrd = std::thread([=]() {go(1, 1212, false); });
-		go(2, 1212);
+		auto thrd = std::thread([=]() {go(ALICE, 1212, false); });
+		go(BOB, 1212);
 		thrd.join();
 	}
 }

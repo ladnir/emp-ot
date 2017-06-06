@@ -1,11 +1,11 @@
 //#include "emp-ot.h"
 #include "emp-ot/emp-ot.h"
-#include <emp-tool.h>
+#include <emp-tool/emp-tool.h>
 #include <iostream>
 using namespace std;
 
 template<typename IO, template<typename>typename T>
-double test_ot(IO * io, int party, int length, T<IO>* ot = nullptr, int TIME = 10) {
+double test_ot(IO * io, EmpParty party, int length, T<IO>* ot = nullptr, int TIME = 10) {
 	block *b0 = new block[length], *b1 = new block[length], *r = new block[length];
 	PRG prg(fix_key);
 	prg.random_block(b0, length);
@@ -20,7 +20,7 @@ double test_ot(IO * io, int party, int length, T<IO>* ot = nullptr, int TIME = 1
 	for (int i = 0; i < TIME; ++i) {
 		t1 = timeStamp();
 		if (ot == nullptr)
-			ot = new T<IO>(io);
+			ot = new T<IO>(io, ZeroBlock);
 		if (party == ALICE) {
 			ot->send(b0, b1, length);
 		}
@@ -41,7 +41,7 @@ double test_ot(IO * io, int party, int length, T<IO>* ot = nullptr, int TIME = 1
 	return (double)t / TIME;
 }
 template<typename IO, template<typename>typename T>
-double test_cot(NetIO * io, int party, int length, T<IO>* ot = nullptr, int TIME = 10) {
+double test_cot(NetIO * io, EmpParty party, int length, T<IO>* ot = nullptr, int TIME = 10) {
 	block *b0 = new block[length], *r = new block[length];
 	bool *b = new bool[length];
 	block delta;
@@ -57,7 +57,7 @@ double test_cot(NetIO * io, int party, int length, T<IO>* ot = nullptr, int TIME
 	for (int i = 0; i < TIME; ++i) {
 		t1 = timeStamp();
 		if (ot == nullptr)
-			ot = new T<IO>(io);
+			ot = new T<IO>(io, ZeroBlock);
 		if (party == ALICE) {
 			ot->send_cot(b0, delta, length);
 		}
@@ -87,11 +87,11 @@ double test_cot(NetIO * io, int party, int length, T<IO>* ot = nullptr, int TIME
 }
 
 template<typename IO, template<typename>typename T>
-double test_rot(IO * io, int party, int length, T<IO>* ot = nullptr, int TIME = 10) {
+double test_rot(IO * io, EmpParty party, int length, T<IO>* ot = nullptr, int TIME = 10) {
 	block *b0 = new block[length], *r = new block[length];
 	block *b1 = new block[length];
 	bool *b = new bool[length];
-	PRG prg;
+	PRG prg(fix_key);
 
 	long long t1 = 0, t = 0;
 	io->sync();
@@ -99,7 +99,7 @@ double test_rot(IO * io, int party, int length, T<IO>* ot = nullptr, int TIME = 
 		prg.random_bool(b, length);
 		t1 = timeStamp();
 		if (ot == nullptr)
-			ot = new T<IO>(io);
+			ot = new T<IO>(io, ZeroBlock);
 		if (party == ALICE) {
 			ot->send_rot(b0, b1, length);
 		}
@@ -130,7 +130,7 @@ double test_rot(IO * io, int party, int length, T<IO>* ot = nullptr, int TIME = 
 
 
 
-void go(int party, int port, int length, bool print = true)
+void go(EmpParty party, int port, int length, bool print = true)
 {
 	std::stringstream ss;
 	std::ostream& out = print ? std::cout : ss;
@@ -138,7 +138,7 @@ void go(int party, int port, int length, bool print = true)
 	NetIO * io = new NetIO(party == ALICE ? nullptr : SERVER_IP, port);
 
 	io->set_nodelay();
-	out << "1024" << " NPOT                     \t" << test_ot<NetIO, OTNP>(io, party, 1024) << endl;
+	out << "128" << " NPOT                     \t" << test_ot<NetIO, OTNP>(io, party, 128) << endl;
 	out << length << " Semi Honest OT Extension \t" << test_ot<NetIO, SHOTExtension>(io, party, length) << endl;
 	out << length << " Semi Honest COT Extension\t" << test_cot<NetIO, SHOTExtension>(io, party, length) << endl;
 	out << length << " Semi Honest ROT Extension\t" << test_rot<NetIO, SHOTExtension>(io, party, length) << endl;
@@ -151,20 +151,20 @@ int main(int argc, char** argv) {
 
 	if (argc == 1)
 	{
-		std::thread thrd = std::thread([=]() { go(0, 1212, length, false); });
-		go(1, 1212, length);
+		std::thread thrd = std::thread([=]() { go(ALICE, 1212, length, false); });
+		go(BOB, 1212, length);
 		thrd.join();
 	}
 	else if (argc >= 3)
 	{
-		parse_party_and_port(argv, &party, &port);
+		parse_party_and_port(argv, argc, &party, &port);
 		std::cout << "PARTY=" << party << " port=" << port << std::endl;
 
-		go(party, port, length);
+		go((EmpParty)party, port, length);
 	}
 	else
 	{
-		std::cout << "please provide no arguments or exact two: PARTY \in {1,2} and PORT \in {0,~6000}" << std::endl;
+		std::cout << "please provide no arguments or exact two: PARTY \\in {1,2} and PORT \\in {0,~6000}" << std::endl;
 	}
 }
 

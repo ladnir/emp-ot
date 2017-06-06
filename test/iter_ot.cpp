@@ -1,11 +1,11 @@
 //#include "emp-ot.h"
 #include "emp-ot/emp-ot.h"
-#include <emp-tool.h>
+#include <emp-tool/emp-tool.h>
 #include <iostream>
 using namespace std;
 
 template<typename IO, template<typename> typename T>
-double test_ot(IO * io, int party, int length, T<IO>* ot, int TIME = 10) {
+double test_ot(IO * io, EmpParty party, int length, T<IO>* ot, int TIME = 10) {
 	block *b0 = new block[length], *b1 = new block[length], *r = new block[length];
 	PRG prg(fix_key);
 	prg.random_block(b0, length);
@@ -37,7 +37,7 @@ double test_ot(IO * io, int party, int length, T<IO>* ot, int TIME = 10) {
 	return (double)t/TIME;
 }
 template<typename IO, template<typename> class T>
-double test_cot(IO * io, int party, int length, T<IO>* ot, int TIME = 10) {
+double test_cot(IO * io, EmpParty party, int length, T<IO>* ot, int TIME = 10) {
 	block *b0 = new block[length], *r = new block[length];
 	bool *b = new bool[length];
 	block delta;
@@ -76,11 +76,11 @@ double test_cot(IO * io, int party, int length, T<IO>* ot, int TIME = 10) {
 }
 
 template<typename IO, template<typename> class T>
-double test_rot(IO * io, int party, int length, T<IO>* ot, int TIME = 10) {
+double test_rot(IO * io, EmpParty party, int length, T<IO>* ot, int TIME = 10) {
 	block *b0 = new block[length], *r = new block[length];
 	block *b1 = new block[length];
 	bool *b = new bool[length];
-	PRG prg;
+	PRG prg(ZeroBlock);
 	prg.random_bool(b, length);
 	prg.random_block(b0, length);
 	prg.random_block(b1, length);
@@ -114,7 +114,7 @@ double test_rot(IO * io, int party, int length, T<IO>* ot, int TIME = 10) {
 	return (double)t/TIME;
 }
 
-void go(int party, int port, bool print)
+void go(EmpParty party, int port, bool print)
 {
 	std::stringstream ss;
 	std::ostream& out = print ? std::cout : ss;
@@ -125,7 +125,7 @@ void go(int party, int port, bool print)
 	io->set_nodelay();
 
 	double t1 = (double)timeStamp();
-	SHOTIterated<NetIO> * ot = new SHOTIterated<NetIO>(io, party == ALICE,length);
+	SHOTIterated<NetIO> * ot = new SHOTIterated<NetIO>(io, party == ALICE, ZeroBlock,length);
 	out << (timeStamp() - t1) << endl;
 
 
@@ -137,16 +137,16 @@ void go(int party, int port, bool print)
 
 int main(int argc, char** argv) {
 
-	if (argc == 3)
+	if (argc > 1)
 	{
 		int port, party;
-		parse_party_and_port(argv, &party, &port);
-		go(party, port, true);
+		parse_party_and_port(argv, argc, &party, &port);
+		go((EmpParty)party, port, true);
 	}
 	else
 	{
-		auto thrd = std::thread([]() {go(1, 1212, false); });
-		go(2, 1212, true);
+		auto thrd = std::thread([]() {go(ALICE, 1212, false); });
+		go(BOB, 1212, true);
 		thrd.join();
 	}
 }
