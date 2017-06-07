@@ -1,6 +1,6 @@
 #ifndef OT_CO_H__
 #define OT_CO_H__
-#include "emp-ot/ot/ot.h"
+#include "emp-ot/ot.h"
 /** @addtogroup OT
     @{
   */

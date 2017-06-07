@@ -70,10 +70,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)..;$(ProjectDir)../../relic/include;$(ProjectDir)../../libOTe/cryptoTools;C:/libs/boost;C:/libs/mpir/lib/x64/$(configuration)</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)../../emp-tool;$(ProjectDir);$(ProjectDir)../../relic/include;$(ProjectDir)../../libOTe/cryptoTools;C:/libs/boost;C:/libs/mpir/lib/x64/$(configuration)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)..;$(ProjectDir)../../relic/include;$(ProjectDir)../../libOTe/cryptoTools;C:/libs/boost;C:/libs/mpir/lib/x64/$(configuration)</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)../../emp-tool;$(ProjectDir);$(ProjectDir)../../relic/include;$(ProjectDir)../../libOTe/cryptoTools;C:/libs/boost;C:/libs/mpir/lib/x64/$(configuration)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -117,14 +117,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="emp-ot.h" />
-    <ClInclude Include="ot\co.h" />
-    <ClInclude Include="ot\ideal.h" />
-    <ClInclude Include="ot\iterated.h" />
-    <ClInclude Include="ot\mextension_alsz.h" />
-    <ClInclude Include="ot\mextension_kos.h" />
-    <ClInclude Include="ot\np.h" />
-    <ClInclude Include="ot\ot.h" />
-    <ClInclude Include="ot\shextension.h" />
+    <ClInclude Include="emp-ot\co.h" />
+    <ClInclude Include="emp-ot\ideal.h" />
+    <ClInclude Include="emp-ot\iterated.h" />
+    <ClInclude Include="emp-ot\mextension_alsz.h" />
+    <ClInclude Include="emp-ot\mextension_kos.h" />
+    <ClInclude Include="emp-ot\np.h" />
+    <ClInclude Include="emp-ot\ot.h" />
+    <ClInclude Include="emp-ot\shextension.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="test\iter_ot.vcxproj" />
