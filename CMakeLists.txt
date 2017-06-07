@@ -47,7 +47,7 @@ target_link_libraries(iter_ot ${LIBRARIES})
 install(FILES emp-ot-config.cmake DESTINATION cmake/)
 
 file(GLOB  headers 
-	"ot/*.h"
+	"emp-ot/*.h"
 )
 install(FILES ${headers}  DESTINATION include/${NAME})
 install(FILES emp-ot.h  DESTINATION include)
